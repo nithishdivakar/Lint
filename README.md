@@ -1,3 +1,3 @@
-# LInt
+# Lint
 
 Implementation of Large integers
