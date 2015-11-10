@@ -1,12 +1,14 @@
-#include "LInt.h"
+#include "Lint.h"
 
-#include<iostream>
-#include<cstdio>
-#include<utility>
-#include<algorithm>
+#include <iostream>
+#include <utility>
+#include <algorithm>
+#include <sstream>
 #include "shorts.h"
 
 
+
+//constructors
 
 Lint::Lint(){
 	digits.push_back(0);
@@ -33,6 +35,54 @@ Lint::Lint(digits_t vec){
 	}
 }
 
+
+//operations
+
+void Lint::add(Lint &B){
+	add_to_element(this->sign, this->digits , B.sign, B.digits);
+}
+
+
+void Lint::mul(Lint &M){
+	multiply_to_element(this->sign, this->digits , M.sign, M.digits);
+}
+
+
+
+
+//overloaded operators
+
+Lint& Lint::operator=(const Lint &I){
+	if(this != &I){ //self assignment
+		digits.clear();
+		digits = digits_t(I.digits);
+	}
+	return *this;
+}
+
+const Lint Lint::operator+(const Lint &B){
+	Lint C = *this;
+	add_to_element(C.sign, C.digits , B.sign, B.digits);
+	return C;
+}
+
+const Lint Lint::operator*(const Lint& M){
+	Lint C = *this;
+	multiply_to_element(C.sign, C.digits , M.sign, M.digits);	
+	return C;
+
+}
+
+//other functions
+std::string Lint::to_string(){
+	std::stringstream ss;
+	RTRAV(digits,it){
+		ss<<*it;
+	}
+	return ss.str();
+}
+/*
+#include<cstdio>
 void Lint::print(){
 	bool flag = true;
 	RTRAV(digits,it){
@@ -45,18 +95,11 @@ void Lint::print(){
 	}
 	printf("\n");
 }
+*/
 
-Lint& Lint::operator=(const Lint &I){
-	if(this != &I){ //self assignment
-		digits.clear();
-		digits = digits_t(I.digits);
-	}
-	return *this;
-}
 
-std::string Lint::to_string(){
-	return "";
-}
+
+//private member functions
 
 void Lint::add_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
 	//TO DO handle sign
@@ -113,51 +156,3 @@ void Lint::multiply_to_element(bool & asign, digits_t& a, const bool bsign, cons
 	a.clear();
 	a.insert(a.begin(),ALL(c));
 }
-
-void Lint::add(Lint &B){
-	add_to_element(this->sign, this->digits , B.sign, B.digits);
-}
-
-
-void Lint::mul(Lint &M){
-	multiply_to_element(this->sign, this->digits , M.sign, M.digits);
-}
-
-const Lint Lint::operator+(const Lint &B){
-	Lint C = *this;
-	add_to_element(C.sign, C.digits , B.sign, B.digits);
-	return C;
-}
-
-const Lint Lint::operator*(const Lint& M){
-	Lint C = *this;
-	multiply_to_element(C.sign, C.digits , M.sign, M.digits);	
-	return C;
-
-}
-/*
- * digits_t &a = (this->digits);
-	digits_t &b = mult.digits;
-	digits_t c ;
-	FOR(i,0,b.size()){
-		int carry = 0;
-		int digit,j,x;
-		for(j=i;j<a.size()+i;j++){
-			if(c.size()>j) x = c[j]; else x = 0;
-			digit = x + (b[i]*a[j-i])+carry;
-			carry = digit/BASE;
-			if(c.size()>j) c[j] = digit % BASE;
-			else     c.push_back(digit % BASE);
-		}
-		if(carry){	
-			if(c.size()>j) x = c[j]; else x = 0;
-			digit = x + carry;
-			carry = digit / BASE;
-			if(c.size()>j) c[j] = digit % BASE;
-			else     c.push_back(digit % BASE);
-		}
-	}
-	digits.clear();
-	digits.insert(digits.begin(),ALL(c));
-	return;
-}*/
