@@ -78,6 +78,8 @@ int start =0,end = s.length();
 		int pos,len;
 		pos = std::max(i-digitsBASE,start);
 		len = i-pos;
+		if(len<=0) continue;
+//		std::cout<<"\n"<<pos<<" "<<len;
 		std::string D = s.substr(pos,len);
 		digit_t dig = stoi(D);
 		digits.push_back(dig);
@@ -98,7 +100,13 @@ void Lint::mul(const Lint &M){
 	multiply_to_element(this->sign, this->digits , M.sign, M.digits);
 }
 
-
+void Lint::negative(){
+	if(sign == POSITIVE_SIGN){
+		sign = NEGATIVE_SIGN;
+	}else{
+		sign = POSITIVE_SIGN;
+	}
+}
 
 
 //overloaded operators
@@ -131,7 +139,7 @@ const Lint Lint::operator*(const Lint& M) const{
 
 }
 
-const Lint Lint::operator-(){
+const Lint Lint::operator-() const{
 	Lint C = *this;
 	if(C.sign == POSITIVE_SIGN){
 		C.sign = NEGATIVE_SIGN;
@@ -151,6 +159,23 @@ Lint & Lint::operator-=(const Lint &B){
 	return *this;
 }
 
+bool Lint::operator==(const Lint &I) const{
+	return !(*this != I);
+}
+bool Lint::operator!=(const Lint &I) const{
+	if(I.sign != sign){
+		std::cout<<"1";
+		return true;
+	}
+	if(I.digits.size() != digits.size() ){
+		std::cout<<"2";
+		return true;
+	}
+
+	auto UN = std::mismatch(ALL(I.digits), digits.begin());
+	// std::cout<<*UN.first<<" "<<*UN.second<<" ";
+	return (UN.first != I.digits.end() || UN.second != digits.end());
+}
 //other functions
 std::string Lint::to_string() const{
 	std::stringstream ss;

@@ -32,15 +32,18 @@ public://operations
 	void add(const Lint &);
 	void sub(const Lint &);
 	void mul(const Lint &);
+	void negative();
 
 public://overloaded operators
 	Lint& operator=(const Lint &);
 	const Lint operator+(const Lint &) const;
 	const Lint operator-(const Lint &) const;
 	const Lint operator*(const Lint &) const;
-	const Lint operator-();
+	const Lint operator-() const;
 	Lint & operator+=(const Lint &);
 	Lint & operator-=(const Lint &);
+	bool operator==(const Lint &) const;
+	bool operator!=(const Lint &) const;
 public://other functions
 	std::string to_string() const;
 };
