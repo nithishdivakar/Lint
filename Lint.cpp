@@ -4,17 +4,36 @@
 #include <utility>
 #include <algorithm>
 #include <sstream>
-#include "shorts.h"
+
+
+/*  Short hands */
+#define ALL(c) (c).begin(),(c).end()
+#define TRAV(c,i) for(\
+				typeof((c).begin()) i = (c).begin();\
+				i != (c).end();\
+				i++)
+#define RTRAV(c,i) for(\
+				typeof((c).rbegin()) i = (c).rbegin();\
+				i != (c).rend();\
+				i++)
+#define FOR(i,a,b) for(int i=(a);i<(b);i++)
+/*  Short hands */
+
+
+
+#define NEGATIVE_SIGN  false
+#define POSITIVE_SIGN  true
+
 
 #define DEBUG 1
 
 //constructors
 
-Lint::Lint():sign(true){
+Lint::Lint():sign(POSITIVE_SIGN){
 	digits.push_back(0);
 }
 
-Lint::Lint(uint32_t i):sign(true){
+Lint::Lint(uint32_t i):sign(POSITIVE_SIGN){
 	if(i == 0){ digits.push_back(0); return;}
 	while(i){
 		digits.push_back(i%BASE);
@@ -30,18 +49,52 @@ Lint::Lint(const Lint& I){
 	}
 }
 
+Lint::Lint(const std::string& s):sign(POSITIVE_SIGN){
+int start =0,end = s.length();
+	if(s.length()<1){digits.push_back(0); return ;}
+
+	if(s[0] == '-'){
+		sign =  NEGATIVE_SIGN;
+		start = 1;
+	}else if(s[0] == '+'){
+		sign = POSITIVE_SIGN;
+		start = 1;
+	}
+
+	FOR(i,start,end){
+		if(s[i] < '0' || s[i] >'9'){
+			digits.push_back(0);
+			return;
+		}
+	}
+
+	digit_t b = BASE;
+	int digitsBASE = 0;
+
+	// counting no of digits in BASE
+	while(b/=10){digitsBASE++;}
+
+	for(int i=end;i>=start;i-=digitsBASE){
+		int pos,len;
+		pos = std::max(i-digitsBASE,start);
+		len = i-pos;
+		std::string D = s.substr(pos,len);
+		digit_t dig = stoi(D);
+		digits.push_back(dig);
+	}
+}
 //operations
 
-void Lint::add(Lint &B){
+void Lint::add(const Lint &B){
 	add_to_element(this->sign, this->digits , B.sign, B.digits);
 }
 
 
-void Lint::sub(Lint &B){
+void Lint::sub(const Lint &B){
 	substract_to_element(this->sign, this->digits , B.sign, B.digits);
 }
 
-void Lint::mul(Lint &M){
+void Lint::mul(const Lint &M){
 	multiply_to_element(this->sign, this->digits , M.sign, M.digits);
 }
 
@@ -59,19 +112,19 @@ Lint& Lint::operator=(const Lint &I){
 	return *this;
 }
 
-const Lint Lint::operator+(const Lint &B){
+const Lint Lint::operator+(const Lint &B) const{
 	Lint C = *this;
 	add_to_element(C.sign, C.digits , B.sign, B.digits);
 	return C;
 }
 
-const Lint Lint::operator-(const Lint &B){
+const Lint Lint::operator-(const Lint &B) const {
 	Lint C = *this;
 	substract_to_element(C.sign, C.digits , B.sign, B.digits);
 	return C;
 }
 
-const Lint Lint::operator*(const Lint& M){
+const Lint Lint::operator*(const Lint& M) const{
 	Lint C = *this;
 	multiply_to_element(C.sign, C.digits , M.sign, M.digits);	
 	return C;
@@ -80,23 +133,45 @@ const Lint Lint::operator*(const Lint& M){
 
 const Lint Lint::operator-(){
 	Lint C = *this;
-	if(C.sign == true){
-		C.sign = false;
+	if(C.sign == POSITIVE_SIGN){
+		C.sign = NEGATIVE_SIGN;
 	}else{
-		C.sign = true;
+		C.sign = POSITIVE_SIGN;
 	}
 	return C;
+}
+
+Lint & Lint::operator+=(const Lint &B){
+	add(B);
+	return *this;
+}
+
+Lint & Lint::operator-=(const Lint &B){
+	sub(B);
+	return *this;
 }
 
 //other functions
 std::string Lint::to_string() const{
 	std::stringstream ss;
 //	std::cout<<sign<<"\n";
-	if(sign == false){
+	if(sign == NEGATIVE_SIGN){
 		ss<<"-";
 	}
+	int b=BASE,d=0;
+	while(b/=10){d++;}
+
+	char buffer[d+1];
+	bool firstdigit=true;	
+
 	RTRAV(digits,it){
-		ss<<*it;
+		if(firstdigit){
+			sprintf(buffer,"%d",*it);
+			firstdigit = NEGATIVE_SIGN;
+		}else{
+			sprintf(buffer,"%0.*d",d,*it);
+		}
+		ss<<buffer;
 		#if(DEBUG)
 			ss<<" ";
 		#endif
@@ -106,11 +181,11 @@ std::string Lint::to_string() const{
 /*
 #include<cstdio>
 void Lint::print(){
-	bool flag = true;
+	bool flag = POSITIVE_SIGN;
 	RTRAV(digits,it){
 		if(flag){
 			printf("%2d",*it);
-			flag = false;
+			flag = NEGATIVE_SIGN;
 		}else{
 			printf("%02d",*it);
 		}
@@ -124,7 +199,7 @@ void Lint::print(){
 //private member functions
 
 
-void Lint::add_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
+void Lint::add_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b) const{
 /*
 -x + -y = -(x+y)
 +x + +y = +(x+y)
@@ -136,12 +211,12 @@ void Lint::add_to_element(bool & asign, digits_t& a, const bool bsign, const dig
 		//asign = asign;// no change for sign
 	}else{
 		if(substraction(a,b))
-			asign = true - asign;
+			asign = !asign;
 		//asign = asign;// no change in sign
 	}
 }
 
-void Lint::substract_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
+void Lint::substract_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b) const{
 
 /*
 -x - -y = -(x+y)
@@ -151,7 +226,7 @@ void Lint::substract_to_element(bool & asign, digits_t& a, const bool bsign, con
 */
 	if(asign == bsign){
 		if(substraction(a,b))
-			asign = true - asign;
+			asign = !asign;
 		//asign = asign;// no change for sign
 	}else{
 		addition(a,b);
@@ -163,7 +238,7 @@ void Lint::substract_to_element(bool & asign, digits_t& a, const bool bsign, con
 
 
 
-void Lint::addition(digits_t& a,const digits_t& b){
+void Lint::addition(digits_t& a,const digits_t& b) const{
 	//TO DO handle sign
 	// a <- a + b
 	digit_t carry = 0;
@@ -189,9 +264,13 @@ void Lint::addition(digits_t& a,const digits_t& b){
 }
 
 
-void Lint::multiply_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
+void Lint::multiply_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b) const{
 
-//	asign = asign*bsign;
+	if(asign == bsign){
+		asign = POSITIVE_SIGN;
+	}else{
+		asign = NEGATIVE_SIGN;
+	}
 	
 	digits_t c ;
 
@@ -220,14 +299,14 @@ void Lint::multiply_to_element(bool & asign, digits_t& a, const bool bsign, cons
 }
 
 //*
-bool Lint::substraction(digits_t& a, const digits_t& b){
+bool Lint::substraction(digits_t& a, const digits_t& b) const{
 	
 	if(a.size() < b.size()){
 		digits_t c(b);
 		substraction(c, a);
 		a.clear();
 		a = digits_t(c);
-		return true;
+		return true;//flip the sign
 	}
 
 	digit_t borrow = 0;

@@ -16,29 +16,31 @@ private:
 	bool sign;//todo true positive false negative
 
 private: // functions;
-	void addition    (digits_t& , const  digits_t&);
-	bool substraction(digits_t& , const  digits_t&);
-	void add_to_element      (bool&, digits_t& , const bool,const  digits_t&);
-	void substract_to_element(bool&, digits_t& , const bool,const  digits_t&);
-	void multiply_to_element (bool&, digits_t& , const bool, const digits_t&);
+	void addition    (digits_t& , const  digits_t&) const;
+	bool substraction(digits_t& , const  digits_t&) const;
+	void add_to_element      (bool&, digits_t& , const bool,const  digits_t&) const;
+	void substract_to_element(bool&, digits_t& , const bool,const  digits_t&) const ;
+	void multiply_to_element (bool&, digits_t& , const bool, const digits_t&) const;
 
 public://constructors
 	Lint();
-	Lint(uint32_t i);
+	Lint(uint32_t);
 	Lint(const Lint&);
+	Lint(const std::string&);
 
 public://operations
-	void add(Lint &A);
-	void sub(Lint &A);
-	void mul(Lint &A);
+	void add(const Lint &);
+	void sub(const Lint &);
+	void mul(const Lint &);
 
 public://overloaded operators
-	Lint& operator=(const Lint &I);
-	const Lint operator+(const Lint &B);
-	const Lint operator-(const Lint &B);
-	const Lint operator*(const Lint &M);
+	Lint& operator=(const Lint &);
+	const Lint operator+(const Lint &) const;
+	const Lint operator-(const Lint &) const;
+	const Lint operator*(const Lint &) const;
 	const Lint operator-();
-
+	Lint & operator+=(const Lint &);
+	Lint & operator-=(const Lint &);
 public://other functions
 	std::string to_string() const;
 };
