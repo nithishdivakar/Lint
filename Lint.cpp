@@ -78,6 +78,16 @@ const Lint Lint::operator*(const Lint& M){
 
 }
 
+const Lint Lint::operator-(){
+	Lint C = *this;
+	if(C.sign == true){
+		C.sign = false;
+	}else{
+		C.sign = true;
+	}
+	return C;
+}
+
 //other functions
 std::string Lint::to_string() const{
 	std::stringstream ss;
@@ -113,7 +123,47 @@ void Lint::print(){
 
 //private member functions
 
+
 void Lint::add_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
+/*
+-x + -y = -(x+y)
++x + +y = +(x+y)
+-x + +y = -(x-y)
++x + -y = +(x-y)
+*/
+	if(asign == bsign){
+		addition(a,b);
+		//asign = asign;// no change for sign
+	}else{
+		if(substraction(a,b))
+			asign = true - asign;
+		//asign = asign;// no change in sign
+	}
+}
+
+void Lint::substract_to_element(bool & asign, digits_t& a, const bool bsign, const digits_t& b){
+
+/*
+-x - -y = -(x+y)
++x - +y = +(x+y)
+-x - +y = -(x-y)
++x - -y = +(x-y)
+*/
+	if(asign == bsign){
+		if(substraction(a,b))
+			asign = true - asign;
+		//asign = asign;// no change for sign
+	}else{
+		addition(a,b);
+		//asign = asign;// no change in sign
+	}
+
+}
+
+
+
+
+void Lint::addition(digits_t& a,const digits_t& b){
 	//TO DO handle sign
 	// a <- a + b
 	digit_t carry = 0;
@@ -170,33 +220,14 @@ void Lint::multiply_to_element(bool & asign, digits_t& a, const bool bsign, cons
 }
 
 //*
-void Lint::substract_to_element(bool& asign, digits_t& a, const bool bsign, const digits_t& b){
-	
-	if(asign != bsign){
-		//shouldnt be doing substraction
-		if(asign == false && bsign == true){
-			//-a - +b = -(a+b)
-			add_to_element(asign, a,asign,b);
-			asign = false;
-			return ;
-		}
-
-		if(asign == true && bsign == false){
-			//+a - -b = -(a+b)
-			add_to_element(asign, a,asign,b);
-			asign = true;
-			return ;
-		}
-	}
+bool Lint::substraction(digits_t& a, const digits_t& b){
 	
 	if(a.size() < b.size()){
 		digits_t c(b);
-		bool sign = bsign;
-		substract_to_element(sign, c, asign, a);
+		substraction(c, a);
 		a.clear();
 		a = digits_t(c);
-		asign = true - sign;
-		return;
+		return true;
 	}
 
 	digit_t borrow = 0;
@@ -230,9 +261,10 @@ void Lint::substract_to_element(bool& asign, digits_t& a, const bool bsign, cons
 
 	if(borrow){
 		a[k] = BASE - a[k];
-		asign = true - asign;
-	}//*/
+	}
+	return false;
 }
+
 
 //*/
 /*

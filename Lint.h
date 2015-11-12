@@ -16,9 +16,11 @@ private:
 	bool sign;//todo true positive false negative
 
 private: // functions;
-	void add_to_element(bool&, digits_t& , const bool,const  digits_t&);
+	void addition    (digits_t& , const  digits_t&);
+	bool substraction(digits_t& , const  digits_t&);
+	void add_to_element      (bool&, digits_t& , const bool,const  digits_t&);
 	void substract_to_element(bool&, digits_t& , const bool,const  digits_t&);
-	void multiply_to_element(bool&, digits_t& , const bool, const digits_t&);
+	void multiply_to_element (bool&, digits_t& , const bool, const digits_t&);
 
 public://constructors
 	Lint();
@@ -35,6 +37,7 @@ public://overloaded operators
 	const Lint operator+(const Lint &B);
 	const Lint operator-(const Lint &B);
 	const Lint operator*(const Lint &M);
+	const Lint operator-();
 
 public://other functions
 	std::string to_string() const;
