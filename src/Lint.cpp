@@ -25,7 +25,7 @@
 #define POSITIVE_SIGN  true
 
 
-#define DEBUG 1
+#define DEBUG 0
 
 //constructors
 
